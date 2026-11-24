@@ -1,109 +1,109 @@
 import { containerResource } from '../resource';
 import {
-    buildServiceRequest,
-    environmentProperty,
-    updateStackWithServiceRequestSchema,
+	buildServiceRequest,
+	environmentProperty,
+	updateStackWithServiceRequestSchema,
 } from './serviceRequest';
 import { selectService, stackWithServicesResponseSchema } from './serviceResponse';
 
 export default containerResource
-    .addOperation({
-        name: 'Update Service',
-        action: 'Update a service in a project',
-        description: 'Update selected fields of a service in a container project',
-    })
-    .withProperties({
-        stackId: {
-            displayName: 'Stack ID',
-            description: 'The unique identifier of the stack',
-            type: 'string',
-            required: true,
-            default: '',
-        },
-        serviceName: {
-            displayName: 'Service Name',
-            type: 'string',
-            required: true,
-            default: '',
-            description: 'Name of the service to update. Maximum 63 characters.',
-        },
-        image: {
-            displayName: 'Image',
-            description: 'Container image to run, for example nginx:latest',
-            type: 'string',
-            required: false,
-            default: '',
-        },
-        command: {
-            displayName: 'Command',
-            type: 'string',
-            required: false,
-            default: '',
-            description: 'Comma-separated docker command values',
-        },
-        entrypoint: {
-            displayName: 'Entrypoint',
-            type: 'string',
-            required: false,
-            default: '',
-            description: 'Comma-separated docker entrypoint values',
-        },
-        ports: {
-            displayName: 'Ports',
-            type: 'string',
-            required: false,
-            default: '',
-            description: 'Comma-separated port mappings, for example 8080:80/tcp',
-        },
-        volumes: {
-            displayName: 'Volumes',
-            type: 'string',
-            required: false,
-            default: '',
-            description: 'Comma-separated volume mounts, for example data:/var/www',
-        },
-        environment: environmentProperty,
-        description: {
-            displayName: 'Name',
-            description: 'Human-readable name of the service',
-            type: 'string',
-            required: false,
-            default: '',
-        },
-    })
-    .withExecuteFn(async ({ properties, apiClient }) => {
-        const {
-            stackId,
-            serviceName,
-            image,
-            command,
-            entrypoint,
-            ports,
-            volumes,
-            environment,
-            description,
-        } = properties;
-        const serviceRequest = buildServiceRequest({
-            image,
-            command,
-            entrypoint,
-            ports,
-            volumes,
-            environment,
-            description,
-        });
+	.addOperation({
+		name: 'Update Service',
+		action: 'Update a service in a project',
+		description: 'Update selected fields of a service in a container project',
+	})
+	.withProperties({
+		stackId: {
+			displayName: 'Stack ID',
+			description: 'The unique identifier of the stack',
+			type: 'string',
+			required: true,
+			default: '',
+		},
+		serviceName: {
+			displayName: 'Service Name',
+			type: 'string',
+			required: true,
+			default: '',
+			description: 'Name of the service to update. Maximum 63 characters.',
+		},
+		image: {
+			displayName: 'Image',
+			description: 'Container image to run, for example nginx:latest',
+			type: 'string',
+			required: false,
+			default: '',
+		},
+		command: {
+			displayName: 'Command',
+			type: 'string',
+			required: false,
+			default: '',
+			description: 'Comma-separated docker command values',
+		},
+		entrypoint: {
+			displayName: 'Entrypoint',
+			type: 'string',
+			required: false,
+			default: '',
+			description: 'Comma-separated docker entrypoint values',
+		},
+		ports: {
+			displayName: 'Ports',
+			type: 'string',
+			required: false,
+			default: '',
+			description: 'Comma-separated port mappings, for example 8080:80/tcp',
+		},
+		volumes: {
+			displayName: 'Volumes',
+			type: 'string',
+			required: false,
+			default: '',
+			description: 'Comma-separated volume mounts, for example data:/var/www',
+		},
+		environment: environmentProperty,
+		description: {
+			displayName: 'Name',
+			description: 'Human-readable name of the service',
+			type: 'string',
+			required: false,
+			default: '',
+		},
+	})
+	.withExecuteFn(async ({ properties, apiClient }) => {
+		const {
+			stackId,
+			serviceName,
+			image,
+			command,
+			entrypoint,
+			ports,
+			volumes,
+			environment,
+			description,
+		} = properties;
+		const serviceRequest = buildServiceRequest({
+			image,
+			command,
+			entrypoint,
+			ports,
+			volumes,
+			environment,
+			description,
+		});
 
-        const stack = await apiClient.request({
-            path: `/stacks/${stackId}`,
-            method: 'PATCH',
-            requestSchema: updateStackWithServiceRequestSchema,
-            responseSchema: stackWithServicesResponseSchema,
-            body: {
-                services: {
-                    [serviceName]: serviceRequest,
-                },
-            },
-        });
+		const stack = await apiClient.request({
+			path: `/stacks/${stackId}`,
+			method: 'PATCH',
+			requestSchema: updateStackWithServiceRequestSchema,
+			responseSchema: stackWithServicesResponseSchema,
+			body: {
+				services: {
+					[serviceName]: serviceRequest,
+				},
+			},
+		});
 
-        return selectService(stack, serviceName);
-    });
+		return selectService(stack, serviceName);
+	});
