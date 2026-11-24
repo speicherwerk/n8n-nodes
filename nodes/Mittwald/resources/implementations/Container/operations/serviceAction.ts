@@ -1,61 +1,61 @@
-import projectProperty from '../../shared/projectProperty';
 import { containerResource } from '../resource';
-import { resolveStackId } from './stackResolver';
 
 export default containerResource
-	.addOperation({
-		name: 'Service Action',
-		action: 'Run an action on a service',
-		description: 'Start, stop, restart, recreate, or pull the image for a service',
-	})
-	.withProperties({
-		project: {
-			...projectProperty,
-			required: true,
-		},
-		serviceId: {
-			displayName: 'Service ID',
-			description: 'The unique identifier of the service',
-			type: 'string',
-			required: true,
-			default: '',
-		},
-		action: {
-			displayName: 'Action',
-			description: 'Action to run on the service',
-			type: 'options',
-			required: true,
-			default: 'start',
-			options: [
-				{
-					name: 'Start',
-					value: 'start',
-				},
-				{
-					name: 'Stop',
-					value: 'stop',
-				},
-				{
-					name: 'Restart',
-					value: 'restart',
-				},
-				{
-					name: 'Recreate',
-					value: 'recreate',
-				},
-				{
-					name: 'Pull Image',
-					value: 'pull',
-				},
-			],
-		},
-	})
-	.withExecuteFn(async ({ properties, apiClient }) => {
-		const { project, serviceId, action } = properties;
-		const stackId = await resolveStackId(apiClient, project);
+    .addOperation({
+        name: 'Service Action',
+        action: 'Run an action on a service',
+        description: 'Start, stop, restart, recreate, or pull the image for a service',
+    })
+    .withProperties({
+        stackId: {
+            displayName: 'Stack ID',
+            description: 'The unique identifier of the stack',
+            type: 'string',
+            required: true,
+            default: '',
+        },
+        serviceId: {
+            displayName: 'Service ID',
+            description: 'The unique identifier of the service',
+            type: 'string',
+            required: true,
+            default: '',
+        },
+        action: {
+            displayName: 'Action',
+            description: 'Action to run on the service',
+            type: 'options',
+            required: true,
+            default: 'start',
+            options: [
+                {
+                    name: 'Start',
+                    value: 'start',
+                },
+                {
+                    name: 'Stop',
+                    value: 'stop',
+                },
+                {
+                    name: 'Restart',
+                    value: 'restart',
+                },
+                {
+                    name: 'Recreate',
+                    value: 'recreate',
+                },
+                {
+                    name: 'Pull Image',
+                    value: 'pull',
+                },
+            ],
+        },
+    })
+    .withExecuteFn(async ({ properties, apiClient }) => {
+        const { stackId, serviceId, action } = properties;
 
-		return apiClient.request({
-			path: `/stacks/${stackId}/services/${serviceId}/actions/${action}`,
-			method: 'POST',
-		});
-	});
+        return apiClient.request({
+            path: `/stacks/${stackId}/services/${serviceId}/actions/${action}`,
+            method: 'POST',
+        });
+    });
